@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 7 a 11 (API 24-30): manter a inclusao padrao do Android.
+     Inclui o banco Room 2lopes.db e suas configuracoes (app_settings).
+     Cache, code cache e noBackupFilesDir ja sao excluidos pelo sistema.
+     Nao excluir arquivos auxiliares do SQLite isoladamente.
+     Camada adicional ao backup JSON manual; nao garante copia recente. -->
+<full-backup-content />

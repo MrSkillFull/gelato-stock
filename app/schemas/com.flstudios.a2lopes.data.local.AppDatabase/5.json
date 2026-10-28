@@ -1,0 +1,790 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 5,
+    "identityHash": "2c04fff85f6bca5e5a23a188ea8d8347",
+    "entities": [
+      {
+        "tableName": "flavors",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `default_price_cents` INTEGER, `active` INTEGER NOT NULL, `normalized_name` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "defaultPriceCents",
+            "columnName": "default_price_cents",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "active",
+            "columnName": "active",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "normalizedName",
+            "columnName": "normalized_name",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_flavors_normalized_name",
+            "unique": true,
+            "columnNames": [
+              "normalized_name"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_flavors_normalized_name` ON `${TABLE_NAME}` (`normalized_name`)"
+          }
+        ]
+      },
+      {
+        "tableName": "production_sessions",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `produced_at` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `notes` TEXT, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "producedAt",
+            "columnName": "produced_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "production_items",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `session_id` TEXT NOT NULL, `flavor_id` INTEGER NOT NULL, `quantity` INTEGER NOT NULL, FOREIGN KEY(`session_id`) REFERENCES `production_sessions`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`flavor_id`) REFERENCES `flavors`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sessionId",
+            "columnName": "session_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "flavorId",
+            "columnName": "flavor_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_production_items_session_id_flavor_id",
+            "unique": true,
+            "columnNames": [
+              "session_id",
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_production_items_session_id_flavor_id` ON `${TABLE_NAME}` (`session_id`, `flavor_id`)"
+          },
+          {
+            "name": "index_production_items_flavor_id",
+            "unique": false,
+            "columnNames": [
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_production_items_flavor_id` ON `${TABLE_NAME}` (`flavor_id`)"
+          },
+          {
+            "name": "index_production_items_id_flavor_id",
+            "unique": true,
+            "columnNames": [
+              "id",
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_production_items_id_flavor_id` ON `${TABLE_NAME}` (`id`, `flavor_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "production_sessions",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "session_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "flavors",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "flavor_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "stock_movements",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `flavor_id` INTEGER NOT NULL, `type` TEXT NOT NULL, `quantity_delta` INTEGER NOT NULL, `reference_type` TEXT NOT NULL, `reference_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, `notes` TEXT, `production_item_id` INTEGER, `sale_item_id` INTEGER, `correction_item_id` INTEGER, FOREIGN KEY(`flavor_id`) REFERENCES `flavors`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`production_item_id`, `flavor_id`) REFERENCES `production_items`(`id`, `flavor_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`sale_item_id`, `flavor_id`) REFERENCES `sale_items`(`id`, `flavor_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`correction_item_id`, `flavor_id`) REFERENCES `correction_items`(`id`, `flavor_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "flavorId",
+            "columnName": "flavor_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantityDelta",
+            "columnName": "quantity_delta",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "referenceType",
+            "columnName": "reference_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "referenceId",
+            "columnName": "reference_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "notes",
+            "columnName": "notes",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "productionItemId",
+            "columnName": "production_item_id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "saleItemId",
+            "columnName": "sale_item_id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "correctionItemId",
+            "columnName": "correction_item_id",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_stock_movements_flavor_id",
+            "unique": false,
+            "columnNames": [
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_stock_movements_flavor_id` ON `${TABLE_NAME}` (`flavor_id`)"
+          },
+          {
+            "name": "index_stock_movements_production_item_id_flavor_id",
+            "unique": false,
+            "columnNames": [
+              "production_item_id",
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_stock_movements_production_item_id_flavor_id` ON `${TABLE_NAME}` (`production_item_id`, `flavor_id`)"
+          },
+          {
+            "name": "index_stock_movements_production_item_id",
+            "unique": true,
+            "columnNames": [
+              "production_item_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_stock_movements_production_item_id` ON `${TABLE_NAME}` (`production_item_id`)"
+          },
+          {
+            "name": "index_stock_movements_sale_item_id_flavor_id",
+            "unique": false,
+            "columnNames": [
+              "sale_item_id",
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_stock_movements_sale_item_id_flavor_id` ON `${TABLE_NAME}` (`sale_item_id`, `flavor_id`)"
+          },
+          {
+            "name": "index_stock_movements_sale_item_id",
+            "unique": true,
+            "columnNames": [
+              "sale_item_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_stock_movements_sale_item_id` ON `${TABLE_NAME}` (`sale_item_id`)"
+          },
+          {
+            "name": "index_stock_movements_correction_item_id_flavor_id",
+            "unique": false,
+            "columnNames": [
+              "correction_item_id",
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_stock_movements_correction_item_id_flavor_id` ON `${TABLE_NAME}` (`correction_item_id`, `flavor_id`)"
+          },
+          {
+            "name": "index_stock_movements_correction_item_id",
+            "unique": true,
+            "columnNames": [
+              "correction_item_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_stock_movements_correction_item_id` ON `${TABLE_NAME}` (`correction_item_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "flavors",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "flavor_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "production_items",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "production_item_id",
+              "flavor_id"
+            ],
+            "referencedColumns": [
+              "id",
+              "flavor_id"
+            ]
+          },
+          {
+            "table": "sale_items",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "sale_item_id",
+              "flavor_id"
+            ],
+            "referencedColumns": [
+              "id",
+              "flavor_id"
+            ]
+          },
+          {
+            "table": "correction_items",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "correction_item_id",
+              "flavor_id"
+            ],
+            "referencedColumns": [
+              "id",
+              "flavor_id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sales",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `sold_at` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "soldAt",
+            "columnName": "sold_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "sale_items",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `sale_id` TEXT NOT NULL, `flavor_id` INTEGER NOT NULL, `quantity` INTEGER NOT NULL, `unit_price_cents` INTEGER, FOREIGN KEY(`sale_id`) REFERENCES `sales`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`flavor_id`) REFERENCES `flavors`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "saleId",
+            "columnName": "sale_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "flavorId",
+            "columnName": "flavor_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantity",
+            "columnName": "quantity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unitPriceCents",
+            "columnName": "unit_price_cents",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_sale_items_sale_id_flavor_id",
+            "unique": true,
+            "columnNames": [
+              "sale_id",
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_sale_items_sale_id_flavor_id` ON `${TABLE_NAME}` (`sale_id`, `flavor_id`)"
+          },
+          {
+            "name": "index_sale_items_flavor_id",
+            "unique": false,
+            "columnNames": [
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_sale_items_flavor_id` ON `${TABLE_NAME}` (`flavor_id`)"
+          },
+          {
+            "name": "index_sale_items_id_flavor_id",
+            "unique": true,
+            "columnNames": [
+              "id",
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_sale_items_id_flavor_id` ON `${TABLE_NAME}` (`id`, `flavor_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "sales",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "sale_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "flavors",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "flavor_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "corrections",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `type` TEXT NOT NULL, `reason` TEXT NOT NULL, `created_at` INTEGER NOT NULL, `flavor_id` INTEGER, `input_quantity` INTEGER, `sale_id` TEXT, `production_id` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`flavor_id`) REFERENCES `flavors`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`sale_id`) REFERENCES `sales`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`production_id`) REFERENCES `production_sessions`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reason",
+            "columnName": "reason",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "created_at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "flavorId",
+            "columnName": "flavor_id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "inputQuantity",
+            "columnName": "input_quantity",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "saleId",
+            "columnName": "sale_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "productionId",
+            "columnName": "production_id",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_corrections_flavor_id",
+            "unique": false,
+            "columnNames": [
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_corrections_flavor_id` ON `${TABLE_NAME}` (`flavor_id`)"
+          },
+          {
+            "name": "index_corrections_sale_id",
+            "unique": true,
+            "columnNames": [
+              "sale_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_corrections_sale_id` ON `${TABLE_NAME}` (`sale_id`)"
+          },
+          {
+            "name": "index_corrections_production_id",
+            "unique": true,
+            "columnNames": [
+              "production_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_corrections_production_id` ON `${TABLE_NAME}` (`production_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "flavors",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "flavor_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "sales",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "sale_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "production_sessions",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "production_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "correction_items",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `correction_id` TEXT NOT NULL, `flavor_id` INTEGER NOT NULL, `previous_quantity` INTEGER NOT NULL, `resulting_quantity` INTEGER NOT NULL, `quantity_delta` INTEGER NOT NULL, `source_production_item_id` INTEGER, `source_sale_item_id` INTEGER, FOREIGN KEY(`correction_id`) REFERENCES `corrections`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`flavor_id`) REFERENCES `flavors`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`source_production_item_id`, `flavor_id`) REFERENCES `production_items`(`id`, `flavor_id`) ON UPDATE NO ACTION ON DELETE RESTRICT , FOREIGN KEY(`source_sale_item_id`, `flavor_id`) REFERENCES `sale_items`(`id`, `flavor_id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "correctionId",
+            "columnName": "correction_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "flavorId",
+            "columnName": "flavor_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "previousQuantity",
+            "columnName": "previous_quantity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "resultingQuantity",
+            "columnName": "resulting_quantity",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quantityDelta",
+            "columnName": "quantity_delta",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceProductionItemId",
+            "columnName": "source_production_item_id",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sourceSaleItemId",
+            "columnName": "source_sale_item_id",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_correction_items_correction_id_flavor_id",
+            "unique": true,
+            "columnNames": [
+              "correction_id",
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_correction_items_correction_id_flavor_id` ON `${TABLE_NAME}` (`correction_id`, `flavor_id`)"
+          },
+          {
+            "name": "index_correction_items_flavor_id",
+            "unique": false,
+            "columnNames": [
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_correction_items_flavor_id` ON `${TABLE_NAME}` (`flavor_id`)"
+          },
+          {
+            "name": "index_correction_items_id_flavor_id",
+            "unique": true,
+            "columnNames": [
+              "id",
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_correction_items_id_flavor_id` ON `${TABLE_NAME}` (`id`, `flavor_id`)"
+          },
+          {
+            "name": "index_correction_items_source_production_item_id_flavor_id",
+            "unique": false,
+            "columnNames": [
+              "source_production_item_id",
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_correction_items_source_production_item_id_flavor_id` ON `${TABLE_NAME}` (`source_production_item_id`, `flavor_id`)"
+          },
+          {
+            "name": "index_correction_items_source_sale_item_id_flavor_id",
+            "unique": false,
+            "columnNames": [
+              "source_sale_item_id",
+              "flavor_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_correction_items_source_sale_item_id_flavor_id` ON `${TABLE_NAME}` (`source_sale_item_id`, `flavor_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "corrections",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "correction_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "flavors",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "flavor_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "production_items",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "source_production_item_id",
+              "flavor_id"
+            ],
+            "referencedColumns": [
+              "id",
+              "flavor_id"
+            ]
+          },
+          {
+            "table": "sale_items",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "source_sale_item_id",
+              "flavor_id"
+            ],
+            "referencedColumns": [
+              "id",
+              "flavor_id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2c04fff85f6bca5e5a23a188ea8d8347')"
+    ]
+  }
+}

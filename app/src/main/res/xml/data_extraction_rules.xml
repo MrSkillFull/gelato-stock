@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12+ (API 31+): manter a inclusao padrao em ambos os transportes.
+     Inclui o banco Room 2lopes.db e suas configuracoes (app_settings).
+     Cache, code cache e noBackupFilesDir ja sao excluidos pelo sistema.
+     A transferencia do sistema nao representa sincronizacao do aplicativo.
+     Camada adicional ao backup JSON manual; pode restaurar dados antigos. -->
+<data-extraction-rules>
+    <cloud-backup />
+    <device-transfer />
+</data-extraction-rules>

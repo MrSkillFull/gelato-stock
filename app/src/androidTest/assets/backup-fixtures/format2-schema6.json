@@ -1,0 +1,29 @@
+{
+  "format": "2lopes-backup",
+  "formatVersion": 2,
+  "schemaVersion": 6,
+  "createdAt": 1700000003000,
+  "datasetId": "11111111-2222-4333-8444-555555555555",
+  "settings": {"lowStockThreshold": 35},
+  "flavors": [
+    {"id": 17, "name": "Coco", "defaultPriceCents": 600, "active": false, "normalizedName": "coco"}
+  ],
+  "production_sessions": [
+    {"id": "fixture-production", "producedAt": 1700000000000, "createdAt": 1700000001000, "notes": "Lote sintético"}
+  ],
+  "production_items": [
+    {"id": 21, "sessionId": "fixture-production", "flavorId": 17, "quantity": 8}
+  ],
+  "sales": [
+    {"id": "fixture-sale", "soldAt": 1700000002000, "createdAt": 1700000002000}
+  ],
+  "sale_items": [
+    {"id": 41, "saleId": "fixture-sale", "flavorId": 17, "quantity": 2, "unitPriceCents": 550}
+  ],
+  "corrections": [],
+  "correction_items": [],
+  "stock_movements": [
+    {"id": 31, "flavorId": 17, "type": "PRODUCTION", "quantityDelta": 8, "referenceType": "PRODUCTION_ITEM", "referenceId": 21, "createdAt": 1700000001000, "notes": "Lote sintético", "productionItemId": 21, "saleItemId": null, "correctionItemId": null},
+    {"id": 51, "flavorId": 17, "type": "SALE", "quantityDelta": -2, "referenceType": "SALE_ITEM", "referenceId": 41, "createdAt": 1700000002000, "notes": null, "productionItemId": null, "saleItemId": 41, "correctionItemId": null}
+  ]
+}

@@ -1,0 +1,9 @@
+/build
+/release-signing.properties
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+/release/
