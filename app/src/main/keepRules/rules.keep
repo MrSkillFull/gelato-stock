@@ -1,4 +1,9 @@
 # Add project specific R8 rules here.
+# R8 9.4.24 moves CollectionsKt__MutableCollectionsJVMKt out of this package
+# while its superclass CollectionsKt__IterablesKt remains package-private.
+# Retain the package boundary required by the Kotlin collections facade chain;
+# classes/members may still be shrunk, optimized and renamed within the package.
+-keeppackagenames kotlin.collections
 # AGP will combine all keep rule files in src/main/keepRules to pass to R8
 #
 # For more details, see

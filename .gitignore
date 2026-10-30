@@ -14,10 +14,7 @@
 .cxx
 local.properties
 # Internal development records; public documentation remains eligible.
-/app/docs/ETAPA_*.md
-/app/docs/BACKUP_TESTING.md
-/app/docs/PROJECT_SPEC.md
-/app/docs/PUBLIC_SNAPSHOT_FILES.txt
+/app/docs
 /app/.agents/
 /app/AGENTS.md
 
