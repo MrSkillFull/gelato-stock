@@ -1,16 +1,17 @@
 package com.flstudios.a2lopes.presentation.settings
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.NotificationsActive
+import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.input.KeyboardType
@@ -20,63 +21,68 @@ import androidx.compose.ui.unit.dp
 fun SettingsScreen(state: SettingsUiState, onChange: (String) -> Unit, onSave: () -> Unit, onRetry: () -> Unit) {
     val focus = LocalFocusManager.current
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        Column(Modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            // Chocolate & Cream Hero Header Banner for Settings Screen
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = MaterialTheme.shapes.medium,
-                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .imePadding()
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            ElevatedCard(
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.elevatedCardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                ),
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(
-                            brush = Brush.horizontalGradient(
-                                colors = listOf(
-                                    Color(0xFF3E2723), // Cobertura de Chocolate Amargo
-                                    Color(0xFF5D4037), // Chocolate ao Leite
-                                    Color(0xFF8D6E63), // Creme Aveludado
-                                )
-                            )
-                        )
-                        .padding(16.dp)
+                Column(
+                    modifier = Modifier.padding(18.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Column {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.NotificationsActive,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(22.dp)
+                        )
                         Text(
-                            "Configurações do App ⚙️🍦",
+                            text = "Alerta de estoque baixo",
                             style = MaterialTheme.typography.titleMedium,
-                            color = Color(0xFFFFE0B2) // Creme Suave
-                        )
-                        Text(
-                            "Preferências do aplicativo",
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = Color(0xFFFFF8E1) // Creme Alvo
-                        )
-                        Text(
-                            "Personalize o aplicativo de acordo com suas preferências",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFFFFD180)
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
-                }
-            }
 
-            ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Alerta de estoque baixo", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
-                    Text("O alerta aparece quando o saldo é menor que o limite. Com limite zero, nenhum saldo é marcado como estoque baixo.", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = "O alerta aparece quando o saldo é menor que o limite configurado. Com limite zero, nenhum saldo é marcado como estoque baixo.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
 
                     when {
-                        state.loading -> Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator() }
+                        state.loading -> Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
                         state.loadError != null -> Column {
                             Text(state.loadError, color = MaterialTheme.colorScheme.error)
+                            Spacer(Modifier.height(8.dp))
                             TextButton(onClick = onRetry, modifier = Modifier.heightIn(min = 48.dp)) { Text("Tentar novamente") }
                         }
                         else -> {
-                            Badge(containerColor = MaterialTheme.colorScheme.secondaryContainer) {
-                                Text("Limite atual salvo: ${state.saved} unidades", modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
+                            Badge(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            ) {
+                                Text(
+                                    text = "Limite atual salvo: ${state.saved} unidades",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
                             }
+
                             OutlinedTextField(
                                 value = state.input,
                                 onValueChange = onChange,
@@ -86,16 +92,33 @@ fun SettingsScreen(state: SettingsUiState, onChange: (String) -> Unit, onSave: (
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 isError = state.error != null,
                                 supportingText = { Text(state.error ?: "Informe um número inteiro igual ou maior que zero.") },
-                                shape = MaterialTheme.shapes.medium,
+                                shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.fillMaxWidth()
                             )
-                            Button(
-                                onClick = { focus.clearFocus(); onSave() },
-                                enabled = !state.busy,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                            ) { Text(if (state.busy) "Salvando…" else "Salvar limite", style = MaterialTheme.typography.titleMedium) }
 
-                            state.message?.let { Text(it, Modifier.semantics { liveRegion = LiveRegionMode.Polite }, color = MaterialTheme.colorScheme.primary) }
+                            Button(
+                                onClick = {
+                                    focus.clearFocus()
+                                    onSave()
+                                },
+                                enabled = !state.busy,
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                            ) {
+                                Icon(Icons.Outlined.Save, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text(if (state.busy) "Salvando…" else "Salvar limite", style = MaterialTheme.typography.titleMedium)
+                            }
+
+                            state.message?.let {
+                                Text(
+                                    text = it,
+                                    modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+
                             if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
                         }
                     }
